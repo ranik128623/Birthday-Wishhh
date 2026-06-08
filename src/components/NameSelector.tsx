@@ -5,7 +5,7 @@
 
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { Sparkles, Heart, HelpCircle, Gift } from "lucide-react";
+import { Sparkles, Heart, HelpCircle, Gift, Cake } from "lucide-react";
 import { synth } from "./AudioSynth";
 import { triggerConfetti } from "./Confetti";
 
@@ -49,8 +49,9 @@ export default function NameSelector({ onNameSelected }: NameSelectorProps) {
         </motion.div>
       </div>
 
-      <h1 className="text-3xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-amber-400 to-emerald-400 mb-2 leading-tight tracking-tight">
-        মজার জন্মদিন পোর্টাল 🎉
+      <h1 className="text-3xl md:text-4xl font-extrabold font-display text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-amber-400 to-emerald-400 mb-2 leading-gradient tracking-tight flex items-center justify-center gap-2 max-w-sm mx-auto">
+        <Cake className="w-8 h-8 text-pink-500 shrink-0 inline-block align-middle" />
+        <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-amber-400 to-emerald-400">মজার জন্মদিন পোর্টাল</span>
       </h1>
       <p className="text-slate-400 text-xs md:text-sm font-sans mb-6">
         তোর সেই স্পেশল পাগলা বন্ধুকে ট্রোল ও ভালোবাসার সংমিশ্রণে শুভকামনা জানাতে প্রস্তুত হ!

@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Volume2, VolumeX, RotateCcw, Heart, Gift, Laugh, Sparkles } from "lucide-react";
+import { Volume2, VolumeX, RotateCcw, Heart, Gift, Laugh, Sparkles, Cake, Crown } from "lucide-react";
 
 import NameSelector from "./components/NameSelector";
 import DramaticLoader from "./components/DramaticLoader";
@@ -184,9 +184,11 @@ export default function App() {
                   initial={{ scale: 0.9 }}
                   animate={{ scale: [1, 1.02, 1] }}
                   transition={{ repeat: Infinity, duration: 3 }}
-                  className="text-3xl md:text-5xl font-black font-display leading-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-amber-400 to-emerald-400 tracking-tight"
+                  className="text-3xl md:text-5xl font-black font-display leading-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-amber-400 to-emerald-400 tracking-tight flex items-center justify-center gap-2 md:gap-3 flex-wrap"
                 >
-                  🎉 শুভ জন্মদিন {friendName}! 🎉
+                  <Crown className="w-8 h-8 md:w-11 md:h-11 text-amber-400 animate-bounce shrink-0 inline-block align-middle" />
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-amber-400 to-emerald-400">শুভ জন্মদিন {friendName}!</span>
+                  <Cake className="w-8 h-8 md:w-11 md:h-11 text-pink-500 animate-pulse shrink-0 inline-block align-middle" />
                 </motion.h1>
 
                 <p className="text-slate-300 font-sans text-xs md:text-sm mt-4 leading-relaxed max-w-lg mx-auto">

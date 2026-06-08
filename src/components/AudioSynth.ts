@@ -6,9 +6,23 @@
 class AudioSynth {
   private ctx: AudioContext | null = null;
   private soundEnabled: boolean = true;
+  private isPlayingBg = false;
+  private bgTimerId: any = null;
+  private bgGainNode: GainNode | null = null;
 
   constructor() {
-    // AudioContext will be initialized on first user interaction to comply with browser security rules
+    if (typeof window !== "undefined") {
+      const startOnInteraction = () => {
+        this.initContext();
+        if (this.soundEnabled) {
+          this.startBackgroundMusic();
+        }
+        window.removeEventListener("click", startOnInteraction);
+        window.removeEventListener("touchstart", startOnInteraction);
+      };
+      window.addEventListener("click", startOnInteraction, { passive: true });
+      window.addEventListener("touchstart", startOnInteraction, { passive: true });
+    }
   }
 
   private initContext() {
@@ -25,10 +39,100 @@ class AudioSynth {
     if (this.ctx && this.ctx.state === "suspended") {
       this.ctx.resume();
     }
+    // Auto-bootstrap background music upon interaction/context resumption
+    if (this.ctx && this.soundEnabled && !this.isPlayingBg) {
+      setTimeout(() => {
+        this.startBackgroundMusic();
+      }, 100);
+    }
   }
 
   public setEnabled(enabled: boolean) {
     this.soundEnabled = enabled;
+    if (enabled) {
+      this.startBackgroundMusic();
+    } else {
+      this.stopBackgroundMusic();
+    }
+  }
+
+  public startBackgroundMusic() {
+    if (!this.soundEnabled || this.isPlayingBg) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    this.isPlayingBg = true;
+    
+    // Master volume control for helper background music
+    this.bgGainNode = this.ctx.createGain();
+    this.bgGainNode.gain.setValueAtTime(0.35, this.ctx.currentTime); // Crisp, highly audible background volume
+    this.bgGainNode.connect(this.ctx.destination);
+
+    // Sweet 8-bit Happy Birthday synth line
+    const C4 = 261.63, D4 = 293.66, E4 = 329.63, F4 = 349.23, G4 = 392.00, A4 = 440.00, Bb4 = 466.16, C5 = 523.25;
+    
+    const melody = [
+      { f: C4, d: 1 }, { f: C4, d: 1 }, { f: D4, d: 2 }, { f: C4, d: 2 }, { f: F4, d: 2 }, { f: E4, d: 4 },
+      { f: C4, d: 1 }, { f: C4, d: 1 }, { f: D4, d: 2 }, { f: C4, d: 2 }, { f: G4, d: 2 }, { f: F4, d: 4 },
+      { f: C4, d: 1 }, { f: C4, d: 1 }, { f: C5, d: 2 }, { f: A4, d: 2 }, { f: F4, d: 2 }, { f: E4, d: 2 }, { f: D4, d: 4 },
+      { f: Bb4, d: 1 }, { f: Bb4, d: 1 }, { f: A4, d: 2 }, { f: F4, d: 2 }, { f: G4, d: 2 }, { f: F4, d: 4 },
+    ];
+
+    let index = 0;
+    const tempo = 240; // Cozy, slightly more relaxed tempo for the background music
+
+    const scheduleNext = () => {
+      if (!this.soundEnabled || !this.isPlayingBg || !this.ctx) return;
+      
+      // Safety resume if context gets suspended by browser background tab throttling
+      if (this.ctx.state === "suspended") {
+        this.ctx.resume();
+      }
+
+      const note = melody[index];
+      const time = this.ctx.currentTime;
+      const durationSec = (note.d * tempo) / 1000;
+
+      const osc = this.ctx.createOscillator();
+      const noteGain = this.ctx.createGain();
+
+      osc.type = "triangle"; // Warm, authentic retro chiptune wave form (highly audible on all mobile & laptop speakers)
+      osc.frequency.setValueAtTime(note.f, time);
+
+      // Smooth envelope attack and decay to erase clicking sounds
+      noteGain.gain.setValueAtTime(0.0, time);
+      noteGain.gain.linearRampToValueAtTime(0.35, time + 0.03);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, time + durationSec - 0.01);
+
+      osc.connect(noteGain);
+      if (this.bgGainNode) {
+        noteGain.connect(this.bgGainNode);
+      } else {
+        noteGain.connect(this.ctx.destination);
+      }
+
+      osc.start(time);
+      osc.stop(time + durationSec);
+
+      index = (index + 1) % melody.length;
+      this.bgTimerId = setTimeout(scheduleNext, note.d * tempo);
+    };
+
+    scheduleNext();
+  }
+
+  public stopBackgroundMusic() {
+    this.isPlayingBg = false;
+    if (this.bgTimerId) {
+      clearTimeout(this.bgTimerId);
+      this.bgTimerId = null;
+    }
+    if (this.bgGainNode) {
+      try {
+        this.bgGainNode.disconnect();
+      } catch (e) {}
+      this.bgGainNode = null;
+    }
   }
 
   public isEnabled(): boolean {
