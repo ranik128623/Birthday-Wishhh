@@ -1,0 +1,6 @@
+{
+  "name": "শুভ জন্মদিন",
+  "description": "বন্ধুর জন্মদিনের জন্য একটি মজাদার এবং ইন্টারঅ্যাক্টিভ উপহার ও রোস্ট ওয়েবসাইট",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
